@@ -10,6 +10,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Crucial: Gives the workflow permission to create releases
 
     steps:
     - name: Checkout Repository
@@ -39,8 +41,17 @@ jobs:
       working-directory: ats-mini-core
       run: pio run
 
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4
+    - name: Create Automated Pre-Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v2
       with:
-        name: ats-mini-core-firmware
-        path: ats-mini-core/.pio/build/esp32s3/firmware.bin
+        tag_name: v0.0.${{ github.run_number }}-alpha
+        name: "Core Firmware Pre-Release v0.0.${{ github.run_number }}"
+        body: |
+          Automated development build from commit ${{ github.sha }}.
+          
+          **Flashing Instructions:**
+          Download the `firmware.bin` below and flash it via your recovery menu partition.
+        prerelease: true
+        files: |
+          ats-mini-core/.pio/build/esp32s3/firmware.bin
