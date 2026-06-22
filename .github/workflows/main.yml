@@ -20,13 +20,15 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Cache PlatformIO
+    - name: Cache PlatformIO Folders
       uses: actions/cache@v4
       with:
         path: |
           ~/.platformio
-          .pio
+          ats-mini-core/.pio
         key: ${{ runner.os }}-platformio-${{ hashFiles('ats-mini-core/platformio.ini') }}
+        restore-keys: |
+          ${{ runner.os }}-platformio-
 
     - name: Install PlatformIO
       run: |
