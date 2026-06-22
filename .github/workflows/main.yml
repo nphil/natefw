@@ -26,7 +26,7 @@ jobs:
         path: |
           ~/.platformio
           .pio
-        key: ${{ runner.os }}-platformio-${{ hashFiles('**/platformio.ini') }}
+        key: ${{ runner.os }}-platformio-${{ hashFiles('ats-mini-core/platformio.ini') }}
 
     - name: Install PlatformIO
       run: |
@@ -34,10 +34,11 @@ jobs:
         pip install --upgrade platformio
 
     - name: Compile Firmware
+      working-directory: ats-mini-core
       run: pio run
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: ats-mini-core-firmware
-        path: .pio/build/esp32s3/firmware.bin
+        path: ats-mini-core/.pio/build/esp32s3/firmware.bin
