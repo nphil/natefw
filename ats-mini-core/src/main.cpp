@@ -1,11 +1,9 @@
-
 #include <Arduino.h>
 #include <LovyanGFX.hpp>
 #include "CorePluginSystem.h"
 #include "ThemeEngine.h"
 #include "InputHandler.h"
 
-// Define ATS Mini specific encoder pinout mappings
 #define ENCODER_PIN_A  1
 #define ENCODER_PIN_B  2
 #define ENCODER_BUTTON 3
@@ -19,10 +17,10 @@ public:
         {
             auto cfg = _bus_instance.config();
             cfg.spi_host = SPI2_HOST;
-            cfg.sclk_pin = 4;
-            cfg.mosi_pin = 6;
-            cfg.miso_pin = -1;
-            cfg.dc_pin   = 7;
+            cfg.pin_sclk = 4;   // Fixed pin naming properties
+            cfg.pin_mosi = 6;
+            cfg.pin_miso = -1;
+            cfg.pin_dc   = 7;
             _bus_instance.config(cfg);
             _panel_instance.setBus(&_bus_instance);
         }
@@ -47,7 +45,6 @@ PluginManager systemPlugins;
 ThemeEngine sysTheme;
 InputHandler input(ENCODER_PIN_A, ENCODER_PIN_B, ENCODER_BUTTON);
 
-// Initial basic Core Module tracking Volume and UX state
 class RadioCoreModule : public ATSModule {
 private:
     int currentSelection = 0;
@@ -82,10 +79,10 @@ public:
                 }
                 break;
             case EncoderEvent::CLICK:
-                editMode = !editMode; // Toggle between traversing cards and editing a card value
+                editMode = !editMode;
                 break;
             case EncoderEvent::LONG_PRESS:
-                sysTheme.setTheme(!sysTheme.get().isDark); // Global Material You theme swap shortcut
+                sysTheme.setTheme(!sysTheme.get().isDark);
                 break;
         }
     }
@@ -98,13 +95,10 @@ public:
         lcd.startWrite();
         lcd.clear(color.background);
 
-        // Render Material You Top Status Bar Bar Header
         lcd.fillRect(0, 0, 170, 32, color.surfaceVariant);
         lcd.setTextColor(color.onSurface);
         lcd.drawString(getModuleName(), 8, 8);
 
-        // Component UI Card Block
-        // If hovered: use surfaceVariant. If clicked into edit mode: flash vibrant Primary color.
         uint16_t cardBg = (currentSelection == 0) ? (editMode ? color.primary : color.surfaceVariant) : color.surface;
         uint16_t textCol = (currentSelection == 0 && editMode) ? color.onPrimary : color.onSurface;
         
@@ -126,7 +120,7 @@ void setup() {
     Serial.begin(115200);
     lcd.init();
     lcd.setRotation(1);
-    sysTheme.setTheme(true); // Default to Dark Theme
+    sysTheme.setTheme(true);
     input.init();
     
     systemPlugins.registerModule(&radioModule);
